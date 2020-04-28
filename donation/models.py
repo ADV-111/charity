@@ -5,6 +5,12 @@ from django.contrib.auth.models import User
 class Category(models.Model):
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+
 
 class Institution(models.Model):
     name = models.CharField(max_length=255)
@@ -16,6 +22,9 @@ class Institution(models.Model):
                                 ('ZL', 'Zbiórka Lokalna')],
                             default='F')
     categories = models.ManyToManyField(Category)
+
+    def __str__(self):
+        return self.name
 
 
 class Donation(models.Model):
@@ -29,8 +38,11 @@ class Donation(models.Model):
     pick_up_date = models.DateField()
     pick_up_time = models.TimeField()
     pick_up_comment = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=None)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
+    def __str__(self):
+        category_list = ', '.join(str(cat) for cat in self.categories.all())
+        return f'{self.quantity} worków darów w postaci: {category_list}'
 
 
 

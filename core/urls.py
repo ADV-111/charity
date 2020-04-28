@@ -20,7 +20,7 @@ from donation.views import IndexPage, LoginView, RegisterView, AddDonation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', IndexPage.as_view()),
+    path('', IndexPage.as_view(), name='index'),
     path('login/', LoginView.as_view(), name='login'),
     path('register/', RegisterView.as_view(), name='register'),
     path('add_donation/', AddDonation.as_view(), name='add_donation'),
