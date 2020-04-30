@@ -9,9 +9,16 @@ from donation.models import Donation, Institution
 class IndexPage(View):
     def get(self, request):
         quantity = Donation.objects.all().aggregate(Sum('quantity'))
-        institution_count = Institution.objects.count()
+        institution_count = Donation.objects.distinct('institution_id').count()
+
+        foundations = Institution.objects.filter(type__exact='F')
+        ngos = Institution.objects.filter(type__exact='OP')
+        h2h_collections = Institution.objects.filter(type__exact='ZL')
         return render(request, 'index.html', context={'quantity': quantity,
-                                                      'institutions': institution_count})
+                                                      'institutions': institution_count,
+                                                      'foundations': foundations,
+                                                      'ngos': ngos,
+                                                      'h2h_collections': h2h_collections})
 
 
 class AddDonation(TemplateView):
