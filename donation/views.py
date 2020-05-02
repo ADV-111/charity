@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db import IntegrityError
@@ -57,8 +57,13 @@ class LoginView(View):
             else:
                 return redirect(f'{reverse("register")}#register')
         else:
-            # msg = 'Nie ma takiego konta. Zarejestruj się.'
             return render(request, 'login.html', {'form': form})
+
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect('index')
 
 
 class RegisterView(View):
