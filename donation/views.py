@@ -1,13 +1,14 @@
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Sum
 from django.shortcuts import render, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
-from donation.forms import UserForm
+from donation.forms import UserForm, LoginForm
 from donation.models import Donation, Institution
 
 
@@ -37,7 +38,27 @@ class AddDonation(TemplateView):
 
 class LoginView(View):
     def get(self, request):
-        return render(request, 'login.html', {})
+        form = LoginForm()
+        return render(request, 'login.html', {'form': form})
+
+    def post(self, request):
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            if User.objects.filter(username__iexact=email).exists():
+                user = authenticate(request, username=email, password=password)
+                if user is None:
+                    msg = 'Niepoprawne hasło'
+                    return render(request, 'login.html', {'form': form, 'msg': msg})
+                elif user is not None:
+                    login(request, user)
+                    return redirect('index')
+            else:
+                return redirect(f'{reverse("register")}#register')
+        else:
+            # msg = 'Nie ma takiego konta. Zarejestruj się.'
+            return render(request, 'login.html', {'form': form})
 
 
 class RegisterView(View):

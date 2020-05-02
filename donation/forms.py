@@ -32,3 +32,7 @@ class UserForm(forms.ModelForm):
                 'Hasła nie są takie same'
             )
 
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(required=True, label='', widget=forms.TextInput(attrs={'placeholder': 'Podaj e-mail'}))
+    password = forms.CharField(required=True, label='', widget=forms.PasswordInput(attrs={'placeholder': 'Podaj hasło'}))
