@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     changeSlide(e) {
-      e.preventDefault();
+      // e.preventDefault();
       const $btn = e.target;
 
       // Buttons Active class change
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function() {
      * TODO: callback to page change event
      */
     changePage(e) {
-      e.preventDefault();
+      // e.preventDefault();
       const page = e.target.dataset.page;
 
       console.log(page);
@@ -252,4 +252,5 @@ document.addEventListener("DOMContentLoaded", function() {
   if (form !== null) {
     new FormSteps(form);
   }
+
 });

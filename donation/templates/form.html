@@ -32,8 +32,8 @@
             </div>
         </div>
     </div>
-    </header>
 {% endblock %}
+
 
 {% block content %}
     <section id="steps-form" class="form--steps">
@@ -63,59 +63,23 @@
                 <!-- STEP 1: class .active is switching steps -->
                 <div data-step="1" class="active">
                     <h3>Zaznacz co chcesz oddać:</h3>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input
-                                    type="checkbox"
-                                    name="categories"
-                                    value="clothes-to-use"
-                            />
-                            <span class="checkbox"></span>
-                            <span class="description"
-                            >ubrania, które nadają się do ponownego użycia</span
-                            >
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input
-                                    type="checkbox"
-                                    name="categories"
-                                    value="clothes-useless"
-                            />
-                            <span class="checkbox"></span>
-                            <span class="description">ubrania, do wyrzucenia</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="toys"/>
-                            <span class="checkbox"></span>
-                            <span class="description">zabawki</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="books"/>
-                            <span class="checkbox"></span>
-                            <span class="description">książki</span>
-                        </label>
-                    </div>
-
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="checkbox" name="categories" value="other"/>
-                            <span class="checkbox"></span>
-                            <span class="description">inne</span>
-                        </label>
-                    </div>
-
+                    {% for category in categories %}
+                        <div class="form-group form-group--checkbox">
+                            <label>
+                                <input
+                                        type="checkbox"
+                                        name="{{ category.id }}"
+                                        value="{{ category.name }}"
+                                />
+                                <span class="checkbox"></span>
+                                <span class="description"
+                                >{{ category.name }}</span
+                                >
+                            </label>
+                        </div>
+                    {% endfor %}
                     <div class="form-group form-group--buttons">
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button type="button" class="btn next-step" id="btn-step-1">Dalej</button>
                     </div>
                 </div>
 
@@ -132,7 +96,7 @@
 
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
-                        <button type="button" class="btn next-step">Dalej</button>
+                        <button type="button" class="btn next-step" id="btn-step-2">Dalej</button>
                     </div>
                 </div>
 
@@ -140,34 +104,25 @@
                 <!-- STEP 4 -->
                 <div data-step="3">
                     <h3>Wybierz organizacje, której chcesz pomóc:</h3>
+                    {% for institution in institutions %}
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                  <div class="title">Fundacja “Bez domu”</div>
-                  <div class="subtitle">
-                    Cel i misja: Pomoc dla osób nie posiadających miejsca
-                    zamieszkania
-                  </div>
-                </span>
-                        </label>
-                    </div>
 
-                    <div class="form-group form-group--checkbox">
-                        <label>
-                            <input type="radio" name="organization" value="old"/>
-                            <span class="checkbox radio"></span>
-                            <span class="description">
-                  <div class="title">Fundacja “Dla dzieci"</div>
-                  <div class="subtitle">
-                    Cel i misja: Pomoc osobom znajdującym się w trudnej sytuacji
-                    życiowej.
-                  </div>
-                </span>
-                        </label>
-                    </div>
+                        <div class="form-group form-group--checkbox {% for cat in institution.categories.all %}cat_{{ cat.id }} {% endfor %}">
+                            <label>
+                                <input type="radio" name="organization" value="{{ institution.id }}"/>
+                                <span class="checkbox radio"></span>
+                                <span class="description">
+                                <div class="title">
+                                    {{ institution.name }}
+                                </div>
+                                  <div class="subtitle">
+                                    {{ institution.description }}
+                                  </div>
+                            </span>
+                            </label>
+                        </div>
+                    {% endfor %}
+
 
                     <div class="form-group form-group--buttons">
                         <button type="button" class="btn prev-step">Wstecz</button>
@@ -284,6 +239,7 @@
 {% endblock %}
 
 
+
 {% block footer %}
     <footer>
         <div class="contact">
@@ -312,13 +268,50 @@
             <span class="bottom-line--copy">Copyright &copy; 2018</span>
             <div class="bottom-line--icons">
                 <a href="#" class="btn btn--small"
-                ><img src="images/icon-facebook.svg"
+                ><img src="{% static 'images/icon-facebook.svg' %}"
                 /></a>
                 <a href="#" class="btn btn--small"
-                ><img src="images/icon-instagram.svg"
+                ><img src="{% static 'images/icon-instagram.svg' %}"
                 /></a>
             </div>
         </div>
     </footer>
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            $('#btn-step-1').click(function () {
+                let cat_list = [];
+                let checkedCatNames = $('[data-step="1"]').find('input:checked');
+                for (let i = 0; i < checkedCatNames.length; i++) {
+                    cat_list.push('cat_' + checkedCatNames[i].name)
+                }
+                console.log(cat_list);
+
+                $('#btn-step-2').click(function () {
+                    let divsToShow = $('div').find('[data-step="3"]').find($('.form-group--checkbox'));
+                    {#let divsToShow = $('.form-group--checkbox');#}
+                    divsToShow.each(function () {
+                        const elClasses = Array.from($(this).prop('classList'));
+                        const found = elClasses.some(cl => cat_list.includes(cl));
+
+                        if(found) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                        });
+                });
+            });
+        });
+
+
+        {#$('#btn-step-1').click(getCheckboxNames());#}
+
+
+        {#let checkedCatNames = $('[data-step="1"]').find('input:checked');#}
+        {#console.log(checkedCatNames);#}
+        {#($('div[data-step="3"]').hasClass('active')) {#}
+    </script>
 {% endblock %}
 

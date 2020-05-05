@@ -10,7 +10,7 @@
         {% if msg %}
             <h3 style="color: red">{{ msg }}</h3>
         {% endif %}
-      <form action="{% url 'login' %}#login" method="post">{% csrf_token %}
+      <form action="{% url 'login' %}" method="post">{% csrf_token %}
         <div class="form-group">
             {{ form.as_p }}
         </div>

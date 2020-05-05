@@ -1,15 +1,16 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Sum
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 
 from donation.forms import UserForm, LoginForm
-from donation.models import Donation, Institution
+from donation.models import Donation, Institution, Category
 
 
 class IndexPage(View):
@@ -21,19 +22,33 @@ class IndexPage(View):
         ngos = Institution.objects.filter(type__exact='OP')
         h2h_collections = Institution.objects.filter(type__exact='ZL')
 
-        # paginator_f = Paginator(foundations_list, 4) #TODO: do paginatora ale i tak nie działa
-        # page = request.GET.get('page', 1)
-        # foundations = paginator_f.get_page(page)
+        paginator_f = Paginator(foundations_list, 4) #TODO: do paginatora ale i tak nie działa
+        page = request.GET.get('page', 1)
+        foundations = paginator_f.get_page(page)
 
         return render(request, 'index.html', context={'quantity': quantity,
                                                       'institutions': institution_count,
-                                                      'foundations': foundations_list,
+                                                      # 'foundations': foundations_list,
+                                                      'foundations': foundations,
                                                       'ngos': ngos,
                                                       'h2h_collections': h2h_collections})
 
 
-class AddDonation(TemplateView):
-    template_name = 'form.html'
+class AddDonation(LoginRequiredMixin, View):
+    def get_login_url(self):
+        return f"{reverse('login')}#login"
+
+    # def get_redirect_field_name(self):
+    #     return f"{reverse('add_donation')}#steps-form"
+
+    def get(self, request):
+        categories = Category.objects.all()
+        institutions = Institution.objects.all()
+        return render(request, 'form.html', {'categories': categories,
+                                             'institutions': institutions})
+
+    def post(self, request):
+        ...
 
 
 class LoginView(View):
