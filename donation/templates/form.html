@@ -59,7 +59,7 @@
         <div class="form--steps-container">
             <div class="form--steps-counter">Krok <span>1</span>/5</div>
 
-            <form action="form-confirmation.html" method="post">
+            <form action="{% url 'add_donation' %}" method="post">{% csrf_token %}
                 <!-- STEP 1: class .active is switching steps -->
                 <div data-step="1" class="active">
                     <h3>Zaznacz co chcesz oddać:</h3>
@@ -68,8 +68,8 @@
                             <label>
                                 <input
                                         type="checkbox"
-                                        name="{{ category.id }}"
-                                        value="{{ category.name }}"
+                                        name="category"
+                                        value="{{ category.id }}"
                                 />
                                 <span class="checkbox"></span>
                                 <span class="description don-category-name">
@@ -90,7 +90,7 @@
                     <div class="form-group form-group--inline">
                         <label>
                             Liczba 60l worków:
-                            <input type="number" name="bags" step="1" min="1" id="bags-ammount"/>
+                            <input type="number" name="bags" step="1" min="1" id="bags-ammount" required/>
                         </label>
                     </div>
 
@@ -138,22 +138,22 @@
                         <div class="form-section--column">
                             <h4>Adres odbioru</h4>
                             <div class="form-group form-group--inline">
-                                <label> Ulica <input type="text" name="address"/> </label>
+                                <label> Ulica <input type="text" name="address" required/> </label>
                             </div>
 
                             <div class="form-group form-group--inline">
-                                <label> Miasto <input type="text" name="city"/> </label>
+                                <label> Miasto <input type="text" name="city" required/> </label>
                             </div>
 
                             <div class="form-group form-group--inline">
                                 <label>
-                                    Kod pocztowy <input type="text" name="postcode"/>
+                                    Kod pocztowy <input type="text" name="postcode" required/>
                                 </label>
                             </div>
 
                             <div class="form-group form-group--inline">
                                 <label>
-                                    Numer telefonu <input type="phone" name="phone"/>
+                                    Numer telefonu <input type="text" name="phone" required/>
                                 </label>
                             </div>
                         </div>
@@ -161,17 +161,17 @@
                         <div class="form-section--column">
                             <h4>Termin odbioru</h4>
                             <div class="form-group form-group--inline">
-                                <label> Data <input type="date" name="date"/> </label>
+                                <label> Data <input type="date" name="date" required/> </label>
                             </div>
 
                             <div class="form-group form-group--inline">
-                                <label> Godzina <input type="time" name="time"/> </label>
+                                <label> Godzina <input type="time" name="time" required/> </label>
                             </div>
 
                             <div class="form-group form-group--inline">
                                 <label>
                                     Uwagi dla kuriera
-                                    <textarea name="more_info" rows="5"></textarea>
+                                    <textarea name="more_info" rows="5" required></textarea>
                                 </label>
                             </div>
                         </div>
@@ -227,11 +227,11 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="form-group form-group--buttons">
-                        <button type="button" class="btn prev-step">Wstecz</button>
-                        <button type="submit" class="btn">Potwierdzam</button>
-                    </div>
+                <div>
+                <div class="form-group form-group--buttons">
+                    <button type="button" class="btn prev-step">Wstecz</button>
+                    <button type="submit" class="btn">Potwierdzam</button>
+                </div>
                 </div>
             </form>
         </div>
@@ -285,15 +285,14 @@
                 let catNames = [];
                 let checkedCatNames = $('[data-step="1"]').find('input:checked');
                 for (let i = 0; i < checkedCatNames.length; i++) {
-                    catList.push('cat_' + checkedCatNames[i].name);
-                    catNames.push(checkedCatNames[i].value)
+                    catList.push('cat_' + checkedCatNames[i].value);
+                    catNames.push(checkedCatNames[i].nextElementSibling.nextElementSibling.innerHTML.trim());
                 }
                 console.log(catList);
                 console.log(catNames);
 
                 $('#btn-step-2').click(function () {
                     let divsToShow = $('div').find('[data-step="3"]').find($('.form-group--checkbox'));
-                    {#let divsToShow = $('.form-group--checkbox');#}
                     divsToShow.each(function () {
                         const elClasses = Array.from($(this).prop('classList'));
                         const found = elClasses.some(cl => catList.includes(cl));

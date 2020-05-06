@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
       // Next step
       this.$next.forEach(btn => {
         btn.addEventListener("click", e => {
-          e.preventDefault();
+          // e.preventDefault();
           this.currentStep++;
           this.updateForm();
         });
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function() {
       // Previous step
       this.$prev.forEach(btn => {
         btn.addEventListener("click", e => {
-          e.preventDefault();
+          // e.preventDefault();
           this.currentStep--;
           this.updateForm();
         });
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function() {
      * TODO: validation, send data to server
      */
     submit(e) {
-      e.preventDefault();
+      // e.preventDefault();
       this.currentStep++;
       this.updateForm();
     }

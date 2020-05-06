@@ -94,14 +94,14 @@
         {% endfor %}
     </ul>
   </div>
-    {% if foundations.has_other_pages %}
-  <ul class="help--slides-pagination"> <!-- TODO: django pagintor działa tylko wtedy gdy usunę tę klasę. Poza tym nie wiem jak dalej ruszyc -->
+{#    {% if foundations.has_other_pages %}#}
+{#  <ul class="help--slides-pagination"> <!-- TODO: django pagintor działa tylko wtedy gdy usunę tę klasę. Poza tym nie wiem jak dalej ruszyc -->#}
 {#      <ul>  #}
-      {% for page in foundations.paginator.page_range %}
-            <li><a class="btn btn--small btn--without-border" href="?page={{ page }}#help">{{ page }}</a></li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+{#      {% for page in foundations.paginator.page_range %}#}
+{#            <li><a class="btn btn--small btn--without-border" href="?page={{ page }}#help">{{ page }}</a></li>#}
+{#        {% endfor %}#}
+{#    </ul>#}
+{#    {% endif %}#}
 
 
 
