@@ -7,7 +7,7 @@ from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 
 from donation.forms import UserForm, LoginForm
 from donation.models import Donation, Institution, Category
@@ -135,3 +135,14 @@ class RegisterView(View):
                 return render(request, 'register.html', {'form': form, 'msg': msg})
         else:
             return render(request, 'register.html', {'form': form})
+
+
+class UserProfileView(LoginRequiredMixin, DetailView):
+    context_object_name = 'profile'
+    model = User
+    template_name = 'user_profle.html'
+
+    def get_login_url(self):
+        return f"{reverse('login')}#login"
+
+

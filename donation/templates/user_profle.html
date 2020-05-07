@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    User Profile
+{% endblock %}
+
+{% block extra_header %}
+    <div class="slogan container container--90">
+        <ul>
+            <li>Imię: {{ profile.first_name }}</li>
+            <li>Nazwisko: {{ profile.last_name }}</li>
+            <li>e-mail: {{ profile.email }}</li>
+        </ul>
+    </div>
+{% endblock %}
