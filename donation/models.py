@@ -39,9 +39,8 @@ class Donation(models.Model):
     pick_up_time = models.TimeField()
     pick_up_comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    status = models.BooleanField(null=True, default=False)
+    is_taken = models.BooleanField(null=True, default=False)
     date_added = models.DateTimeField(auto_now_add=True)
-
 
     def __str__(self):
         category_list = ', '.join(str(cat) for cat in self.categories.all())

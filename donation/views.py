@@ -5,9 +5,9 @@ from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Sum
 from django.shortcuts import render, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import DetailView
 
 from donation.forms import UserForm, LoginForm
 from donation.models import Donation, Institution, Category
@@ -58,9 +58,7 @@ class AddDonation(LoginRequiredMixin, View):
         date = request.POST.get('date')
         time = request.POST.get('time')
         more_info = request.POST.get('more_info')
-        username = None
-        if request.user.is_authenticated:
-            username = request.user.id
+        user_id = request.user.id
         donation = Donation.objects.create(quantity=bags_quantity,
                                            institution_id=institution_id,
                                            address=address,
@@ -70,7 +68,7 @@ class AddDonation(LoginRequiredMixin, View):
                                            pick_up_date=date,
                                            pick_up_time=time,
                                            pick_up_comment=more_info,
-                                           user_id=username)
+                                           user_id=user_id)
         donation.categories.add(*category_id_list)
         donation.save()
         return redirect('add_donation_confirmation')
@@ -137,17 +135,32 @@ class RegisterView(View):
             return render(request, 'register.html', {'form': form})
 
 
-class UserProfileView(LoginRequiredMixin, DetailView):
-    context_object_name = 'profile'
-    model = User
-    template_name = 'user_profle.html'
+class UserProfileView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        user_object = User.objects.get(pk=pk)
+        is_taken = request.GET.get('is_taken')
+        don_id = request.GET.get('don_id')
+        if don_id is not None:
+            Donation.objects.filter(pk=don_id).update(is_taken=is_taken)
+        donations = Donation.objects.filter(user__email__iexact=user_object.email).order_by('is_taken',
+                                                                                            'date_added',
+                                                                                            'pick_up_date')
+        return render(request, 'user_profile.html', context={'donations': donations,
+                                                             'profile': user_object})
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['donations'] = Donation.objects.all()
-        return context
 
-    def get_login_url(self):
-        return f"{reverse('login')}#login"
-
-
+# class UserProfileView(LoginRequiredMixin, DetailView):
+#     context_object_name = 'profile'
+#     model = User
+#     template_name = 'user_profile.html'
+#
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['donations'] = Donation.objects.filter(user__email__iexact=self.object.email).order_by('is_taken',
+#                                                                                                        'date_added',
+#                                                                                                        'pick_up_date')
+#         return context
+#
+#     def get_login_url(self):
+#         return f"{reverse('login')}#login"
