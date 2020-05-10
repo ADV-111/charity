@@ -140,10 +140,8 @@ class UserProfileView(LoginRequiredMixin, View):
     def get_login_url(self):
         return f"{reverse('login')}#login"
 
-    def get(self, request, pk):
-        if pk != request.user.id:
-            return HttpResponseForbidden("Ten widok jest zarezerwowany dla innego użytkownika")
-        user_object = User.objects.get(pk=pk)
+    def get(self, request):
+        user_object = request.user
         is_taken = request.GET.get('is_taken')
         don_id = request.GET.get('don_id')
         if don_id is not None:
@@ -170,3 +168,44 @@ class UserProfileView(LoginRequiredMixin, View):
 #
 #     def get_login_url(self):
 #         return f"{reverse('login')}#login"
+
+class UserSettingsView(LoginRequiredMixin, View):
+    def get(self, request):
+
+        return render(request, 'settings.html', context={'user_object': request.user})
+
+    def post(self, request):
+        user_object = request.user
+        password = request.POST.get('password')
+        submit_btn_value = request.POST.get('submit_button')
+
+        msg = ""
+
+        if not user_object.check_password(password):
+            msg = "Hasło nieprawidłowe"
+            return render(request, 'settings.html', context={'user_object': user_object, 'msg': msg})
+
+        if submit_btn_value == 'change_settings':
+            try:
+                user_object.username = request.POST.get('email')
+                user_object.email = request.POST.get('email')
+                user_object.first_name = request.POST.get('first_name')
+                user_object.last_name = request.POST.get('last_name')
+                user_object.save()
+                msg = "Ustawienia zakutalizowane"
+            except IntegrityError:
+                msg = 'Podany email już istnieje w bazie danych'
+
+        elif submit_btn_value == 'change_password':
+            new_password_1 = request.POST.get('new_password_1')
+            new_password_2 = request.POST.get('new_password_2')
+            if new_password_1 != new_password_2 and new_password_1 is not None:
+                msg = 'Hasła nie są takie same'
+            else:
+                user_object.set_password(new_password_1)
+                user_object.save()
+                msg = 'Poprawnie zmieniono hasło'
+        return render(request, 'settings.html', context={'user_object': request.user, 'msg': msg})
+
+    def get_login_url(self):
+        return f"{reverse('login')}#login"
