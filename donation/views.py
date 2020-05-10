@@ -1,9 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Sum
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
@@ -136,7 +137,12 @@ class RegisterView(View):
 
 
 class UserProfileView(LoginRequiredMixin, View):
+    def get_login_url(self):
+        return f"{reverse('login')}#login"
+
     def get(self, request, pk):
+        if pk != request.user.id:
+            return HttpResponseForbidden("Ten widok jest zarezerwowany dla innego użytkownika")
         user_object = User.objects.get(pk=pk)
         is_taken = request.GET.get('is_taken')
         don_id = request.GET.get('don_id')

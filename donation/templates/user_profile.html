@@ -59,7 +59,12 @@
                             </form>
                         </td>
                     </tr>
-                {% endfor %}</section>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
 
 
             {#            {% for donation in donations|dictsort:'date_added'|dictsort:'pick_up_date'|dictsort:'is_taken' %}#}
@@ -81,7 +86,4 @@
             {#                    {% endif %}#}
             {#                </tr>#}
             {#            {% endfor %}#}
-            </tbody>
-        </table>
-    </div>
 {% endblock %}
