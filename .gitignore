@@ -6,4 +6,5 @@ __pycache__
 *.pyc
 *.sqlite3
 *.db
+local_settings.py
 

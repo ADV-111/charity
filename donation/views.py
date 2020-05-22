@@ -1,17 +1,23 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Sum
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.views.generic import DetailView
 
 from donation.forms import UserForm, LoginForm
 from donation.models import Donation, Institution, Category
+from donation.tokens import account_activation_token
 
 
 class IndexPage(View):
@@ -127,13 +133,41 @@ class RegisterView(View):
                 user = User.objects.create_user(username=username, email=email, first_name=first_name,
                                                 last_name=last_name)
                 user.set_password(password)
+                user.is_active = False
                 user.save()
-                return redirect(f"{reverse('login')}#login")
+                current_site = get_current_site(request)
+                mail_subject = 'Aktywuj swoje konto'
+                message = render_to_string('acc_activate_email.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': account_activation_token.make_token(user),
+                })
+                to_email = email
+                email_message = EmailMessage(mail_subject, message, to=[to_email])
+                email_message.send()
+                return render(request, 'register_confirmation.html', {})
+                # return redirect(f"{reverse('login')}#login")
             except IntegrityError:
                 msg = 'Podany email już istnieje w bazie danych'
                 return render(request, 'register.html', {'form': form, 'msg': msg})
         else:
             return render(request, 'register.html', {'form': form})
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return HttpResponse('Dziekujemy za potwierdzenie rejestracji. Możesz się teraz zalogować')
+    else:
+        return HttpResponse('Link do aktywcji jest nieważny')
 
 
 class UserProfileView(LoginRequiredMixin, View):
